@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>V3_N1_CORE_INDEX - Soi lô MB</title>
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--card2:#0b1220;--text:#e5e7eb;--muted:#94a3b8;--line:#263244;--accent:#22c55e;--warn:#f59e0b;--bad:#ef4444;--blue:#38bdf8;--chip:#1f2937;--white:#fff}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0f172a,#020617);color:var(--text)}
+    .wrap{max-width:1180px;margin:0 auto;padding:18px}
+    h1{font-size:24px;margin:8px 0 4px}.sub{color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}
+    .card{background:rgba(17,24,39,.9);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:0 10px 28px rgba(0,0,0,.18)}
+    label{font-weight:700;font-size:14px;display:block;margin:0 0 8px}.hint{color:var(--muted);font-size:12px;line-height:1.45;margin:6px 0 0}
+    textarea,input{width:100%;background:#020617;color:var(--text);border:1px solid #334155;border-radius:12px;padding:12px;font:14px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;outline:none}
+    textarea:focus,input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(56,189,248,.12)}
+    textarea{min-height:210px;resize:vertical}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1}.row .small{flex:0 0 auto}
+    button{border:0;border-radius:12px;padding:11px 14px;font-weight:800;cursor:pointer;color:#061018;background:var(--accent)}
+    button.secondary{background:#334155;color:var(--text)}button.warn{background:var(--warn);color:#111827}button.bad{background:var(--bad);color:#fff}button.blue{background:var(--blue);color:#061018}
+    button:active{transform:translateY(1px)}.pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid #334155;border-radius:999px;padding:6px 10px;font-size:12px;color:#cbd5e1;margin:3px 4px 3px 0}
+    .resultBig{font-size:42px;font-weight:900;letter-spacing:.04em;margin:8px 0}.green{color:var(--accent)}.yellow{color:var(--warn)}.red{color:var(--bad)}.blueText{color:var(--blue)}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}th,td{border-bottom:1px solid var(--line);padding:9px 7px;text-align:left;vertical-align:top}th{color:#cbd5e1;background:#0b1220;position:sticky;top:0}.num{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-weight:800}.muted{color:var(--muted)}
+    .box{background:#020617;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px;white-space:pre-wrap;line-height:1.5}.mini{font-size:12px}.ok{border-color:rgba(34,197,94,.45)}.ng{border-color:rgba(239,68,68,.45)}
+    .split{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.dayCard{background:#020617;border:1px solid var(--line);border-radius:12px;padding:10px}.dayTitle{font-weight:900;margin-bottom:6px}.numbers{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.55;color:#dbeafe}
+    @media(max-width:850px){.grid,.split{grid-template-columns:1fr}.resultBig{font-size:36px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>V3_N1_CORE_INDEX — Soi lô MB</h1>
+  <div class="sub">
+    Bản khóa theo hướng đã test: chỉ dùng 3 ngày gần nhất, D-1 là cổng pha, loại số đã về D-1, chỉ CHỐT 1 con hoặc NGHỈ. Không TOP 2, không bắt chọn tay.
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <label>Nhập KQ 3 ngày gần nhất hoặc nhiều ngày</label>
+      <textarea id="input" placeholder="Dán KQ dạng:
+KQ XSMB 02/05/2026
+ĐB: 16132
+G1: 71757
+...
+G7: 41 14 62 87
+
+KQ XSMB 03/05/2026
+..."></textarea>
+      <div class="hint">Parser tự bỏ dòng ngày tháng, chỉ lấy 2 số cuối trong các dòng ĐB/G1/G2...G7. Nếu dán nhiều hơn 3 ngày, hệ tự lấy 3 ngày cuối.</div>
+      <div class="row" style="margin-top:10px">
+        <button onclick="analyze()">SOI V3_N1_CORE</button>
+        <button class="secondary" onclick="clearInput()">Xóa ô nhập</button>
+        <button class="warn" onclick="loadSampleMay5()">Nạp mẫu 02–04/05</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <label>Ngày cần chốt</label>
+      <input id="targetDate" placeholder="Ví dụ: 05/05/2026" />
+      <div class="hint">Không bắt buộc. Ghi để lưu lịch sử chốt cho dễ xem.</div>
+      <div id="summary" class="box muted">Chưa có kết quả.</div>
+      <div class="row" style="margin-top:10px">
+        <button class="blue" onclick="saveDecision()">Lưu chốt</button>
+        <button class="secondary" onclick="copyResult()">Copy kết quả</button>
+        <button class="bad" onclick="clearHistory()">Xóa lịch sử</button>
+      </div>
+    </div>
+
+    <div class="card full">
+      <label>Dữ liệu 3 ngày hệ đang dùng</label>
+      <div id="daysView" class="split"></div>
+    </div>
+
+    <div class="card full">
+      <label>Bảng ứng viên sau khi loại D-1</label>
+      <div id="candidates"></div>
+    </div>
+
+    <div class="card full">
+      <label>Lịch sử chốt</label>
+      <div id="history"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let lastDecision = null;
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function norm2(s){ return pad2(parseInt(s,10)%100); }
+function countMap(arr){ const m={}; arr.forEach(x=>m[x]=(m[x]||0)+1); return m; }
+function unique(arr){ return [...new Set(arr)]; }
+function intersects(a,b){ const sb=new Set(b); return a.some(x=>sb.has(x)); }
+function twoDigitTokensFromLine(line){
+  // Chỉ parse dòng giải, không parse dòng KQ/date/header tự do.
+  if(!/^\s*(ĐB|DB|G\d|G[1-7])\s*:/i.test(line)) return [];
+  const after = line.split(':').slice(1).join(':');
+  const nums = after.match(/\d+/g) || [];
+  return nums.map(norm2);
+}
+function parseDays(text){
+  const lines = text.split(/\r?\n/);
+  const days=[]; let cur=null;
+  for(const raw of lines){
+    const line=raw.trim();
+    if(!line) continue;
+    const dateMatch=line.match(/(?:KQ\s*)?(?:XSMB\s*)?(\d{1,2}[\/\-.]\d{1,2}(?:[\/\-.]\d{2,4})?)/i);
+    if(dateMatch && !/^\s*(ĐB|DB|G\d|G[1-7])\s*:/i.test(line)){
+      if(cur && cur.nums.length) days.push(cur);
+      cur={date:dateMatch[1].replaceAll('-','/').replaceAll('.','/'), nums:[]};
+      continue;
+    }
+    const toks=twoDigitTokensFromLine(line);
+    if(toks.length){
+      if(!cur) cur={date:'Không rõ ngày', nums:[]};
+      cur.nums.push(...toks);
+    }
+  }
+  if(cur && cur.nums.length) days.push(cur);
+  return days;
+}
+function digitsOf(n){ return [n[0], n[1]]; }
+function rev(n){ return n[1]+n[0]; }
+function clusterOf(n){
+  const [a,b]=digitsOf(n); const set=new Set([n, rev(n)]);
+  for(let i=0;i<10;i++){ set.add(a+String(i)); set.add(String(i)+a); set.add(b+String(i)); set.add(String(i)+b); }
+  return [...set];
+}
+function touchCounts(day){
+  const m={}; day.nums.forEach(n=>{ digitsOf(n).forEach(d=>m[d]=(m[d]||0)+1); }); return m;
+}
+function topTouches(day){
+  const m=touchCounts(day); const vals=Object.values(m); if(!vals.length) return [];
+  const sorted=[...vals].sort((a,b)=>b-a); const cut=sorted[Math.min(2, sorted.length-1)] || sorted[0];
+  return Object.keys(m).filter(d=>m[d]>=cut);
+}
+function multiNums(day){ const m=countMap(day.nums); return Object.keys(m).filter(k=>m[k]>=2); }
+function daySet(day){ return unique(day.nums); }
+
+function phaseDetect(d3,d2,d1){
+  const s3=daySet(d3), s2=daySet(d2), s1=daySet(d1);
+  const t3=topTouches(d3), t2=topTouches(d2), t1=topTouches(d1);
+  const touchContinue = intersects(t1,t2) || intersects(t1,t3);
+  const repeatAcross = s1.filter(n=>s2.includes(n)||s3.includes(n)).length;
+  const reverseAcross = s1.filter(n=>s2.includes(rev(n))||s3.includes(rev(n))).length;
+  const multi = multiNums(d1).length;
+  let reasons=[]; let score=0;
+  if(touchContinue){score++; reasons.push('D-1 còn chạm nối với D-2/D-3');}
+  if(repeatAcross>=2){score++; reasons.push('Có số/cụm lặp xuyên 2–3 ngày');}
+  if(reverseAcross>=1){score++; reasons.push('Có đảo/gương còn chạy');}
+  if(multi<=4){score++; reasons.push('D-1 không quá loạn đa giải');} else reasons.push('D-1 có nhiều số đa giải, tăng nhiễu');
+  let phase='NHIỄU';
+  if(score>=3) phase='THUẬN';
+  if(score<=1 || (!touchContinue && repeatAcross===0 && reverseAcross===0)) phase='ĐỔI';
+  if(phase==='ĐỔI') reasons.push('Cắt nhiều điểm nối, ưu tiên nghỉ');
+  if(phase==='NHIỄU') reasons.push('Có tín hiệu nhưng chưa đủ rõ, chỉ vào nếu có 1 số cực sạch');
+  if(phase==='THUẬN') reasons.push('Đủ điểm nối pha, được phép tìm số chốt');
+  return {phase, reasons, score, multi};
+}
+
+function buildCandidates(d3,d2,d1){
+  const s3=daySet(d3), s2=daySet(d2), s1=daySet(d1);
+  const c3=countMap(d3.nums), c2=countMap(d2.nums), c1=countMap(d1.nums);
+  const forbidden=new Set(s1);
+  const pool=new Set([...s3,...s2]);
+  // thêm đảo từ nền D-2/D-3, nhưng vẫn phải không dính D-1
+  [...s3,...s2].forEach(n=>pool.add(rev(n)));
+  const tAll=[...topTouches(d3),...topTouches(d2),...topTouches(d1)];
+  for(const d of unique(tAll)){ for(let i=0;i<10;i++){ pool.add(d+String(i)); pool.add(String(i)+d); } }
+  const multiD1=multiNums(d1);
+  const rows=[];
+  for(const n of [...pool].sort()){
+    if(!/^\d{2}$/.test(n)) continue;
+    if(forbidden.has(n)) continue;
+    const clean=3;
+    const baseDays=(s3.includes(n)?1:0)+(s2.includes(n)?1:0);
+    const base = baseDays===2 ? 2 : baseDays===1 ? 1 : 0;
+    const cl=clusterOf(n);
+    const clusterDays=(intersects(cl,s3)?1:0)+(intersects(cl,s2)?1:0)+(intersects(cl,s1)?1:0);
+    const cluster = clusterDays>=3 ? 2 : clusterDays===2 ? 1 : 0;
+    const td=digitsOf(n);
+    const touch = (td.some(x=>topTouches(d1).includes(x)) && (td.some(x=>topTouches(d2).includes(x)) || td.some(x=>topTouches(d3).includes(x)))) ? 1 : 0;
+    const mirror = ((s3.includes(rev(n))||s2.includes(rev(n))||s1.includes(rev(n))) && !forbidden.has(n)) ? 1 : 0;
+    const noisy = intersects(cl, multiD1) ? 0 : 1;
+    const total=clean+base+cluster+touch+mirror+noisy;
+    const d3hits=c3[n]||0, d2hits=c2[n]||0, d1hits=c1[n]||0;
+    const note=[];
+    if(d3hits) note.push(`D-3 ${d3hits} nháy`);
+    if(d2hits) note.push(`D-2 ${d2hits} nháy`);
+    note.push('D-1 không về');
+    if(mirror) note.push(`có đảo ${rev(n)}`);
+    if(cluster>=1) note.push('cụm còn lực');
+    rows.push({n,clean,base,cluster,touch,mirror,noisy,total,d3hits,d2hits,d1hits,note:note.join(', ')});
+  }
+  rows.sort((a,b)=>{
+    // selector: điểm, sạch/ngắt lực, nền D2/D3, cụm ít nhiễu, cấu trúc cân bằng
+    if(b.total!==a.total) return b.total-a.total;
+    if(b.base!==a.base) return b.base-a.base;
+    if(b.cluster!==a.cluster) return b.cluster-a.cluster;
+    if(b.noisy!==a.noisy) return b.noisy-a.noisy;
+    const balA = a.n[0]!==a.n[1] ? 1 : 0, balB=b.n[0]!==b.n[1] ? 1 : 0;
+    if(balB!==balA) return balB-balA;
+    return a.n.localeCompare(b.n);
+  });
+  return rows;
+}
+
+function decide(days,target){
+  const last3=days.slice(-3);
+  const [d3,d2,d1]=last3;
+  const phase=phaseDetect(d3,d2,d1);
+  const rows=buildCandidates(d3,d2,d1);
+  let decision='NGHỈ', level='NGHỈ', pick='', reason=[];
+  const top=rows[0], second=rows[1];
+  if(phase.phase==='ĐỔI'){
+    reason.push('Pha ĐỔI: luật hệ mặc định nghỉ.');
+  } else if(!top){
+    reason.push('Không có ứng viên sau khi loại D-1.');
+  } else if(phase.phase==='NHIỄU'){
+    if(top.total>=8 && (!second || top.total-second.total>=1)){
+      decision='CHỐT'; pick=top.n; level='VÀO VỪA'; reason.push('Pha NHIỄU nhưng có 1 số cực sạch đạt ngưỡng ≥8 và hơn số sau.');
+    } else reason.push('Pha NHIỄU: không có 1 số cực sạch đủ tách biệt, nghỉ.');
+  } else {
+    if(top.total>=8){ decision='CHỐT'; pick=top.n; level='VÀO MẠNH'; reason.push('Pha THUẬN, ứng viên đạt ≥8 điểm.'); }
+    else if(top.total>=7){ decision='CHỐT'; pick=top.n; level='VÀO VỪA'; reason.push('Pha THUẬN, ứng viên đạt ngưỡng ≥7 điểm.'); }
+    else reason.push('Pha THUẬN nhưng chưa có số đạt ngưỡng ≥7, nghỉ.');
+  }
+  return {target, days:last3, phase, rows, decision, level, pick, reason};
+}
+
+function renderDecision(res){
+  const color = res.decision==='CHỐT' ? (res.level==='VÀO MẠNH'?'green':'yellow') : 'red';
+  $('summary').className='box '+(res.decision==='CHỐT'?'ok':'ng');
+  $('summary').innerHTML = `
+<div class="muted">Ngày soi: <b>${escapeHtml(res.target||'Chưa nhập')}</b></div>
+<div>Pha: <b class="${res.phase.phase==='THUẬN'?'green':res.phase.phase==='NHIỄU'?'yellow':'red'}">${res.phase.phase}</b></div>
+<div>Mức lệnh: <b class="${color}">${res.level}</b></div>
+<div class="resultBig ${color}">${res.decision==='CHỐT'?res.pick:'NGHỈ'}</div>
+<div class="mini"><b>Lý do:</b><br>${escapeHtml([...res.phase.reasons,...res.reason].join('\n'))}</div>`;
+}
+function renderDays(days){
+  $('daysView').innerHTML = days.map((d,i)=>{
+    const name=['D-3','D-2','D-1'][i]; const cm=countMap(d.nums);
+    const multis=Object.keys(cm).filter(k=>cm[k]>=2).map(k=>`${k}(${cm[k]})`).join(' ');
+    return `<div class="dayCard"><div class="dayTitle">${name}: ${escapeHtml(d.date)} <span class="muted">(${d.nums.length} lô)</span></div><div class="numbers">${d.nums.join(' ')}</div><div class="hint">Đa nháy: ${multis||'không rõ'}</div></div>`;
+  }).join('');
+}
+function renderCandidates(rows){
+  if(!rows.length){ $('candidates').innerHTML='<div class="box muted">Không có ứng viên.</div>'; return; }
+  const show=rows.slice(0,20);
+  $('candidates').innerHTML = `<table><thead><tr><th>Số</th><th>Tổng</th><th>Sạch D-1</th><th>Nền D-2/D-3</th><th>Cụm</th><th>Chạm</th><th>Đảo</th><th>Không nhiễu</th><th>Ghi chú</th></tr></thead><tbody>`+
+  show.map((r,idx)=>`<tr><td class="num ${idx===0?'green':''}">${r.n}</td><td><b>${r.total}</b></td><td>${r.clean}</td><td>${r.base}</td><td>${r.cluster}</td><td>${r.touch}</td><td>${r.mirror}</td><td>${r.noisy}</td><td class="muted">${escapeHtml(r.note)}</td></tr>`).join('')+`</tbody></table>`;
+}
+function analyze(){
+  const days=parseDays($('input').value);
+  if(days.length<3){ alert('Cần ít nhất 3 ngày KQ để soi.'); return; }
+  const res=decide(days,$('targetDate').value.trim());
+  lastDecision=res;
+  renderDays(res.days); renderDecision(res); renderCandidates(res.rows);
+}
+function saveDecision(){
+  if(!lastDecision){ alert('Chưa có kết quả để lưu.'); return; }
+  const h=JSON.parse(localStorage.getItem('v3_history')||'[]');
+  h.unshift({time:new Date().toLocaleString('vi-VN'), target:lastDecision.target||'', phase:lastDecision.phase.phase, level:lastDecision.level, decision:lastDecision.decision, pick:lastDecision.pick||'NGHỈ'});
+  localStorage.setItem('v3_history', JSON.stringify(h.slice(0,100)));
+  renderHistory();
+}
+function renderHistory(){
+  const h=JSON.parse(localStorage.getItem('v3_history')||'[]');
+  if(!h.length){ $('history').innerHTML='<div class="box muted">Chưa có lịch sử.</div>'; return; }
+  $('history').innerHTML = `<table><thead><tr><th>Thời gian</th><th>Ngày soi</th><th>Pha</th><th>Mức</th><th>Kết luận</th></tr></thead><tbody>`+
+  h.map(x=>`<tr><td>${escapeHtml(x.time)}</td><td>${escapeHtml(x.target)}</td><td>${x.phase}</td><td>${x.level}</td><td><b>${x.decision==='CHỐT'?x.pick:'NGHỈ'}</b></td></tr>`).join('')+`</tbody></table>`;
+}
+function clearHistory(){ if(confirm('Xóa toàn bộ lịch sử chốt?')){ localStorage.removeItem('v3_history'); renderHistory(); } }
+function clearInput(){ $('input').value=''; $('daysView').innerHTML=''; $('candidates').innerHTML=''; $('summary').className='box muted'; $('summary').textContent='Chưa có kết quả.'; lastDecision=null; }
+function copyResult(){
+  if(!lastDecision){ alert('Chưa có kết quả để copy.'); return; }
+  const r=lastDecision;
+  const txt=`V3_N1_CORE — SOI LÔ MB ${r.target||''}\nPha: ${r.phase.phase}\nMức lệnh: ${r.level}\nKết luận: ${r.decision==='CHỐT'?r.pick:'NGHỈ'}\nLý do:\n- ${[...r.phase.reasons,...r.reason].join('\n- ')}`;
+  navigator.clipboard.writeText(txt).then(()=>alert('Đã copy kết quả.'));
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function loadSampleMay5(){
+$('targetDate').value='05/05/2026';
+$('input').value=`KQ XSMB 02/05/2026
+ĐB: 16132
+G1: 71757
+G2: 99083 98654
+G3: 86938 71437 36884 49158 15991 74525
+G4: 3100 7714 4382 0524
+G5: 6046 7173 3104 6621 0697 8307
+G6: 960 157 907
+G7: 41 14 62 87
+
+KQ XSMB 03/05/2026
+ĐB: 32964
+G1: 07578
+G2: 04054 01848
+G3: 61895 30357 50223 32428 88363 00727
+G4: 0787 1532 2957 1984
+G5: 6844 3254 1640 1137 8191 6048
+G6: 506 490 194
+G7: 68 88 24 59
+
+KQ XSMB 04/05/2026
+ĐB: 11251
+G1: 41714
+G2: 83115 80556
+G3: 26457 76234 63246 50115 83785 71851
+G4: 6469 5545 0730 1317
+G5: 8380 6205 9349 1012 2407 7442
+G6: 867 393 252
+G7: 15 69 63 67`;
+analyze();
+}
+renderHistory();
+</script>
+</body>
+</html>
